@@ -6,6 +6,7 @@
 
   <groupId>com.sddevops</groupId>
   <artifactId>assessment</artifactId>
+  <packaging>war</packaging>
   <version>0.0.1-SNAPSHOT</version>
 
 
