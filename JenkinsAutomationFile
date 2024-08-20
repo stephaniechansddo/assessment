@@ -1,0 +1,69 @@
+pipeline {
+    // The agent specifies where the pipeline will run.
+    // 'any' means it can run on any available agent.
+    agent any
+    
+    // Define the tools needed for the build process.
+    tools {
+        // Specifies the Maven version to use for the build.
+        maven 'maven 3.9.6'
+        // Specifies the JDK version to use for the build.
+        jdk 'openjdk11'
+    }
+    
+    stages {
+        // Define the 'Clean' stage.
+        stage("Clean") {
+            steps {
+                // Output a message to the console. This is to indicate to user of which stage is the code running on
+                echo "Start Clean"
+                // Run the Maven clean command to remove previous build artifacts.
+                bat "mvn clean"
+                // Output a completion message to the console. This is to indicate to user of which stage is the code running on.
+                echo "Maven clean is completed"
+            }
+        }
+        
+        // Define the 'Test' stage.
+        stage("Test") {
+            steps {
+                // Output a message to the console. This is to indicate to user of which stage is the code running on.
+                echo "Start Test"
+                // Run the Maven test command to execute unit tests.
+                bat "mvn test"
+                // Output a completion message to the console. This is to indicate to user of which stage is the code running on.
+                echo "Maven test is completed"
+            }
+        }
+        
+        // Define the 'Build & Sonar' stage, which contains parallel stages.
+        stage("Build & Sonar") {
+            // Allows Build and Sonar to run concurrently
+            parallel {
+                // Define the 'Build' stage to run in parallel.
+                stage("Build") {
+                    steps {
+                        // Output a message to the console. This is to indicate to user of which stage is the code running on.
+                        echo "Start build"
+                        // Run the Maven install command to compile and package the code, skipping tests.
+                        bat "mvn install -DskipTests"
+                        // Output a completion message to the console. This is to indicate to user of which stage is the code running on.
+                        echo "Maven build is completed"
+                    }
+                }
+                
+                // Define the 'Sonar' stage to run in parallel.
+                stage("Sonar") {
+                    steps {
+                        // Output a message to the console. This is to indicate to user of which stage is the code running on.
+                        echo "Start Sonar"
+                        // Run the Maven SonarQube analysis command.
+                        bat "mvn sonar:sonar"
+                        // Output a message to the console. This is to indicate to user of which stage is the code running on.
+                        echo "Sonar is completed"
+                    }
+                }
+            }
+        }
+    }
+}
